@@ -53,14 +53,14 @@ set_cron_job(
 
 # Set ten minute cron job to read emails
 set_cron_job(
-    cron_freq=ten_min_freq,
+    cron_freq=cron_freq,
     script_path=str(curr_dir / "read_emails.py"),
     python_path=str(curr_dir / "venv/bin/python"),
 )
 
 # Set ten minute cron job to check for git changes
 set_cron_job(
-    cron_freq=ten_min_freq,
+    cron_freq=cron_freq,
     script_path=str(curr_dir / "git_watch.py"),
     python_path=str(curr_dir / "venv/bin/python"),
 )
