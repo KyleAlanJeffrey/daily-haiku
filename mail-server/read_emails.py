@@ -2,13 +2,13 @@ from pathlib import Path
 import re
 import imaplib
 import email
-from dotenv import load_dotenv, dotenv_values
+from dotenv import dotenv_values
 
 parent_dir = Path(__file__).resolve().parents[1]
-load_dotenv()  # take environment variables from .env.
-
-config = dotenv_values(
-    ".env"
+dotenv_path = Path(__file__).resolve() / ".env"
+dotenv_path = Path(__file__).resolve() / ".env"
+config = (
+    dotenv_values()
 )  # config = {"USER": "foo", "EMAIL": "foo@example.org"}
 
 # Email configuration

@@ -5,13 +5,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import ssl
 from requests import request
-from dotenv import load_dotenv, dotenv_values
+from dotenv import dotenv_values
 
 parent_dir = Path(__file__).resolve().parents[1]
-load_dotenv()  # take environment variables from .env.
-
-config = dotenv_values(
-    ".env"
+dotenv_path = Path(__file__).resolve() / ".env"
+config = (
+    dotenv_values()
 )  # config = {"USER": "foo", "EMAIL": "foo@example.org"}
 
 # Email configuration
