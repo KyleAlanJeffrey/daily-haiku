@@ -2,6 +2,7 @@ from pathlib import Path
 import re
 import imaplib
 import email
+import string
 from dotenv import dotenv_values
 
 parent_dir = Path(__file__).resolve().parents[1]
@@ -13,7 +14,7 @@ config = dotenv_values(
 # Email configuration
 SMTP_SERVER = "smtp.mail.yahoo.com"
 IMAP_SERVER = "imap.mail.yahoo.com"
-ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+ALPHABETS = (string.ascii_lowercase, string.ascii_uppercase, string.digits)
 
 EMAIL_ACCOUNT = config["EMAIL"]
 PASSWORD = config["PASSWORD"]
@@ -21,10 +22,16 @@ CAESAR_SHIFT = config["CAESAR_SHIFT"]
 
 
 # Use a caesar cipher to encode the email body.
-def caesar(plaintext: str, shift: int) -> str:
-    shifted_alphabet = ALPHABET[shift:] + ALPHABET[:shift]
-    table = str.maketrans(ALPHABET, shifted_alphabet)
-    return plaintext.translate(table)
+def caesar(text: str, step: int):
+
+    def shift(alphabet):
+        return alphabet[step:] + alphabet[:step]
+
+    shifted_alphabets = tuple(map(shift, ALPHABETS))
+    joined_aphabets = "".join(ALPHABETS)
+    joined_shifted_alphabets = "".join(shifted_alphabets)
+    table = str.maketrans(joined_aphabets, joined_shifted_alphabets)
+    return text.translate(table)
 
 
 # Function to read emails and save responses locally
