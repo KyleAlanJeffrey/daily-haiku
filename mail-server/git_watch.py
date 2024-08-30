@@ -3,9 +3,9 @@ import os
 from pathlib import Path
 import subprocess
 
-curr_dir = Path(__file__).resolve().parent
+parent_dir = Path(__file__).resolve().parents[1]
 # Define the path to your git repository
-repo_path = curr_dir
+repo_path = parent_dir
 commit_message = lambda s: f"Auto-commit: {s}"
 
 # Change the current working directory to the repo
