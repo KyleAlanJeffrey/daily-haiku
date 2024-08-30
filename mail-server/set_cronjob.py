@@ -42,15 +42,18 @@ def set_cron_job(cron_freq: str, script_path: str, python_path: str):
 
 
 # Set daily cron job to send an email
+cron_freq = "*/1 * * * *"  # Every minute
+daily_freq = "0 9 * * *"  # 9:00 AM daily
+ten_min_freq = "*/10 * * * *"  # Every 10 minutes
 set_cron_job(
-    cron_freq="0 9 * * *",  # 9:00 AM daily
+    cron_freq=cron_freq,
     script_path=str(curr_dir / "send_email.py"),
     python_path=str(curr_dir / "venv/bin/python"),
 )
 
 # Set hourly cron job to read emails
 set_cron_job(
-    cron_freq="0 * * * *",  # Every hour
+    cron_freq=cron_freq,
     script_path=str(curr_dir / "read_emails.py"),
     python_path=str(curr_dir / "venv/bin/python"),
 )
