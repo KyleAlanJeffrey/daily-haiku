@@ -13,8 +13,18 @@ config = dotenv_values(
 # Email configuration
 SMTP_SERVER = "smtp.mail.yahoo.com"
 IMAP_SERVER = "imap.mail.yahoo.com"
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+
 EMAIL_ACCOUNT = config["EMAIL"]
 PASSWORD = config["PASSWORD"]
+CAESAR_SHIFT = config["CAESAR_SHIFT"]
+
+
+# Use a caesar cipher to encode the email body.
+def caesar(plaintext: str, shift: int) -> str:
+    shifted_alphabet = ALPHABET[shift:] + ALPHABET[:shift]
+    table = str.maketrans(ALPHABET, shifted_alphabet)
+    return plaintext.translate(table)
 
 
 # Function to read emails and save responses locally
@@ -44,6 +54,8 @@ def read_emails():
                 body = part.get_payload(decode=True).decode("utf-8")
                 # Remove quoted text that begins with '>'
                 body = re.sub(r"\n>.*", "", body)
+                # encode the email body
+                body = caesar(body, int(CAESAR_SHIFT))
                 # Fri, 30 Aug 2024 12:00:43 -0700
                 date_str = "-".join(date.split(" ")[1:4])
                 # Save email to a local file
