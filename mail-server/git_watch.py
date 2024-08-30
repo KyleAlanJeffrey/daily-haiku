@@ -9,6 +9,7 @@ repo_path = curr_dir
 commit_message = lambda s: f"Auto-commit: {s}"
 
 # Change the current working directory to the repo
+print(f"Changing working directory to {repo_path}")
 os.chdir(repo_path)
 
 
@@ -26,12 +27,14 @@ def run_command(command):
 
 # Check if there are any changes
 status_output, _ = run_command("git status --porcelain")
-
+print(f"Git status: {status_output}")
 if status_output:
     # Stage all changes
+    print("Staging changes...")
     run_command("git add .")
 
     # Commit the changes
+    print(f"Committing changes with message: {commit_message(status_output)}")
     run_command(f'git commit -m "{commit_message(status_output)}"')
 
     # Push the changes to the remote repository
