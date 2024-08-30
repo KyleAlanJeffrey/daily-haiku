@@ -5,10 +5,9 @@ import email
 from dotenv import dotenv_values
 
 parent_dir = Path(__file__).resolve().parents[1]
-dotenv_path = Path(__file__).resolve() / ".env"
-dotenv_path = Path(__file__).resolve() / ".env"
-config = (
-    dotenv_values()
+dotenv_path = Path(__file__).resolve().parent / ".env"
+config = dotenv_values(
+    dotenv_path
 )  # config = {"USER": "foo", "EMAIL": "foo@example.org"}
 
 # Email configuration
