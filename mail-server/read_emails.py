@@ -67,7 +67,7 @@ def read_emails():
     mail.login(EMAIL_ACCOUNT, PASSWORD)
     mail.select("inbox")
 
-    result, data = mail.search(None, "SEEN")  # Look for unread emails
+    result, data = mail.search(None, "UNSEEN")  # Look for unread emails
     email_ids = data[0].split()
 
     print(f"Found {len(email_ids)} unread email(s).")
@@ -95,7 +95,7 @@ def read_emails():
                 date_str = "-".join(date.split(" ")[1:4])
                 # Save email to a local file in json. Check if file content
                 # Already exists and append if it does.
-                output_file = parent_dir / f"daily-response/{date_str}.txt"
+                output_file = parent_dir / f"daily-response/{date_str}.json"
                 json_data = {}
                 if output_file.exists():
                     print(f"Founding existing entry: {output_file}...")
@@ -109,7 +109,7 @@ def read_emails():
                     f.write(json.dumps(json_data, indent=4))
                     print(f"Email response saved to {output_file}.")
 
-                filename = output_file.stem
+                filename = output_file.stem + ".json"
                 output_file = parent_dir / "daily-response/metadata.txt"
                 if not output_file.exists():
                     output_file.touch()
