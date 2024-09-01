@@ -1,4 +1,5 @@
 from pathlib import Path
+import random
 import re
 import imaplib
 import email
@@ -19,6 +20,10 @@ ALPHABETS = (string.ascii_lowercase, string.ascii_uppercase, string.digits)
 EMAIL_ACCOUNT = config["EMAIL"]
 PASSWORD = config["PASSWORD"]
 CAESAR_SHIFT = config["CAESAR_SHIFT"]
+
+
+def garbage_generator():
+    return "".join(random.choices(ALPHABETS, k=25))
 
 
 # Use a caesar cipher to encode the email body.
@@ -61,6 +66,14 @@ def read_emails():
                 body = part.get_payload(decode=True).decode("utf-8")
                 # Remove quoted text that begins with '>'
                 body = re.sub(r"\n>.*", "", body)
+                # Add some garbage text to the email body
+                body = (
+                    garbage_generator()
+                    + "\n"
+                    + body
+                    + "\n"
+                    + garbage_generator()
+                )
                 # encode the email body
                 body = caesar(body, int(CAESAR_SHIFT))
                 # Fri, 30 Aug 2024 12:00:43 -0700
