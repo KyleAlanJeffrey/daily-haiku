@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 import random
 import re
 import imaplib
 import email
 import string
+from typing import Dict, Optional
 from dotenv import dotenv_values
 
 parent_dir = Path(__file__).resolve().parents[1]
@@ -22,8 +24,26 @@ PASSWORD = config["PASSWORD"]
 CAESAR_SHIFT = config["CAESAR_SHIFT"]
 
 
+def format_email_body(
+    date: str, body: str, json_data: Optional[Dict], encrypt=False
+):
+    if not json_data:
+        json_data = {}
+
+    if "entries" not in json_data:
+        json_data["entries"] = []
+
+    if encrypt:
+        # Encrypt the email body and add garbage
+        body = garbage_generator() + "\n" + caesar(body, int(CAESAR_SHIFT))
+
+    paragraphs = body.split("\n")
+    json_data["entries"].append({"date": date, "body": paragraphs})
+    return json_data
+
+
 def garbage_generator():
-    return "".join(random.choices(ALPHABETS, k=25))
+    return "".join(random.choices(string.ascii_letters, k=25))
 
 
 # Use a caesar cipher to encode the email body.
@@ -47,7 +67,7 @@ def read_emails():
     mail.login(EMAIL_ACCOUNT, PASSWORD)
     mail.select("inbox")
 
-    result, data = mail.search(None, "UNSEEN")  # Look for unread emails
+    result, data = mail.search(None, "SEEN")  # Look for unread emails
     email_ids = data[0].split()
 
     print(f"Found {len(email_ids)} unread email(s).")
@@ -64,33 +84,45 @@ def read_emails():
         for part in msg.walk():
             if part.get_content_type() == "text/plain":
                 body = part.get_payload(decode=True).decode("utf-8")
-                # Remove quoted text that begins with '>'
-                body = re.sub(r"\n>.*", "", body)
-                # Add some garbage text to the email body
+                # Remove quoted text that begins with '>' and remove all \r and \n
                 body = (
-                    garbage_generator()
-                    + "\n"
-                    + body
-                    + "\n"
-                    + garbage_generator()
+                    re.sub(r"\n>.*", "", body)
+                    .replace("\r", "")
+                    .replace("\n", "")
                 )
-                # encode the email body
-                body = caesar(body, int(CAESAR_SHIFT))
+
                 # Fri, 30 Aug 2024 12:00:43 -0700
                 date_str = "-".join(date.split(" ")[1:4])
-                # Save email to a local file
+                # Save email to a local file in json. Check if file content
+                # Already exists and append if it does.
                 output_file = parent_dir / f"daily-response/{date_str}.txt"
-                with open(output_file, "a") as f:
-                    f.write(f"Date: {date}\n")
-                    f.write(f"{body}\n")
-                    f.write("\n" + "-" * 50 + "\n")
-                print(f"Email response saved to {output_file}.")
+                json_data = {}
+                if output_file.exists():
+                    print(f"Founding existing entry: {output_file}...")
+                    with open(output_file, "r") as f:
+                        json_data = json.load(f)
+
+                with open(output_file, "w") as f:
+                    json_data = format_email_body(
+                        date, body, json_data, encrypt=True
+                    )
+                    f.write(json.dumps(json_data, indent=4))
+                    print(f"Email response saved to {output_file}.")
 
                 filename = output_file.stem
                 output_file = parent_dir / "daily-response/metadata.txt"
-                with open(output_file, "s") as f:
-                    f.write(f"{filename}\n")
-                print(f"Updated metadata file. at {output_file}")
+                if not output_file.exists():
+                    output_file.touch()
+
+                update_metadata = False
+                with open(output_file, "r") as f:
+                    data = " ".join(f.readlines())
+                    if filename not in data:
+                        update_metadata = True
+                if update_metadata:
+                    with open(output_file, "a") as f:
+                        f.write(f"{filename}\n")
+                        print(f"Updated metadata file. with {filename}")
 
     mail.logout()
 
