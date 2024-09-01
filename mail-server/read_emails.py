@@ -86,6 +86,12 @@ def read_emails():
                     f.write("\n" + "-" * 50 + "\n")
                 print(f"Email response saved to {output_file}.")
 
+                filename = output_file.stem
+                output_file = parent_dir / "daily-response/metadata.txt"
+                with open(output_file, "s") as f:
+                    f.write(f"{filename}\n")
+                print(f"Updated metadata file. at {output_file}")
+
     mail.logout()
 
 
